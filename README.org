@@ -1,0 +1,79 @@
+#+TITLE: CuTest (Unit testing C)
+#+author: Bastien Zalugas
+#+language: en
+
+* Table of contents :TOC:
+- [[#basics][Basics]]
+- [[#details][Details]]
+- [[#all-cuassert-functions][All CuAssert functions]]
+
+* Basics
++ SourceForge : [[http://cutest.sourceforge.net/]]
++ We only use CuTest.c & CuTest.h
++ We create 1 or more files of tests
++ We create a AllTest.c to run all tests (at least to regroup all tests)
++ We put group tests into logical sets with the Suites
++ Each individual test corresponds to a CuTest. These are grouped to form a CuSuite. CuSuites can hold CuTests or other CuSuites. AllTest.c collects all the CuSuites in the program into a single CuSuite which it then runs as a single CuSuite.
+
+* Details
++ Create a file for related tests (a function = a file or a file = a file)
+  + I name it with the original name + Test at the end
+  + In this xTest.c file, the structure is :
+    #+begin_src C:
+#include "project.h"
+#include "CuTest.h"
+
+void	xTest1(CuTest *tc)
+{
+	/* void CuAssert(CuTest* tc, char* message, int condition); */
+	/* void CuAssertTrue(CuTest* tc, int condition); */
+	/* void CuAssertStrEquals(CuTest* tc, char* expected, char* actual); */
+	/* void CuAssertIntEquals(CuTest* tc, int expected, int actual); */
+	/* void CuAssertPtrEquals(CuTest* tc, void* expected, void* actual); */
+	/* void CuAssertPtrNotNull(CuTest* tc, void* pointer); */
+}
+
+CuSuite	*xGetSuite()
+{
+	CuSuite	*suite = CuSuiteNew();
+	SUITE_ADD_TEST(suite, Test1);
+	return (suite);
+}
+    #+end_src
+
++ Structure of AllTests.c file :
+  #+begin_src C:
+#include "project.h"
+#include "CuTest.h"
+
+CuSuite	*xGetSuite();
+CuSuite	*yGetSuite();
+
+void	RunAllTests(void)
+{
+	CuString	*output = CuStringNew();
+	CuSuite	*suite = CuSuiteNew();
+
+	CuSuiteAddSuite(suite, xGetSuite());
+	CuSuiteAddSuite(suite, yGetSuite());
+
+	CuSuiteRun(suite);
+	CuSuiteSummary(suite, output);
+	CuSuiteDetails(suite, output);
+	printf("%s\n", output->buffer);
+}
+
+int	main(void)
+{
+	RunAllTests();
+}
+  #+end_src
++ The RunAllTests() can also be used in the main of the programm with for example the test for argument "--test"
+
+* All CuAssert functions
++ ~void CuAssert(CuTest* tc, char* message, int condition);~
++ ~void CuAssertTrue(CuTest* tc, int condition);~
++ ~void CuAssertStrEquals(CuTest* tc, char* expected, char* actual);~
++ ~void CuAssertIntEquals(CuTest* tc, int expected, int actual);~
++ ~void CuAssertPtrEquals(CuTest* tc, void* expected, void* actual);~
++ ~void CuAssertPtrNotNull(CuTest* tc, void* pointer);~
