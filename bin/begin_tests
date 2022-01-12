@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+cutestpath=~/.cutest-1.5
+
+if [ ! -d $cutestpath ]; then
+    git clone https://github.com/bzalugas/CuTest.git ~/.cutest-1.5
+    configFile=("$HOME/.bashrc" "$HOME/.zshrc")
+    for x in "${configFile[@]}"; do
+        if [ -e "$x" ]; then
+            echo "export PATH=$PATH:$cutestpath/bin" >> "$x"
+        fi
+    done
+fi
+mkdir tests
+cp $cutestpath/CuTest.c $cutestpath/CuTest.h ./tests
