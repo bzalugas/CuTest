@@ -1,15 +1,38 @@
 #!/usr/bin/env bash
 
+defaultShell=${SHELL#/usr/bin/}
+sourceFile="$HOME/.$defaultShell""rc"
 cutestpath=~/.cutest-1.5
+green="\033[1;32m"
+yellow="\033[1;33m"
+end="\033[0m"
 
+# if the CuTest folder isn't in home
 if [ ! -d $cutestpath ]; then
-    git clone https://github.com/bzalugas/CuTest.git ~/.cutest-1.5
-    configFile=("$HOME/.bashrc" "$HOME/.zshrc")
-    for x in "${configFile[@]}"; do
-        if [ -e "$x" ]; then
-            echo "export PATH=$PATH:$cutestpath/bin" >> "$x"
-        fi
-    done
+    #clone the CuTest folder
+    git clone git@github.com:bzalugas/CuTest.git $cutestpath
+
 fi
-mkdir tests
+
+#if the source file of the shell is found and the cutest/bin folder is not yet set in it, add export PATH command to it
+if [ -e "$sourceFile" ]; then
+    if ! grep -q "export PATH=\$PATH:$cutestpath/bin" "$sourceFile"; then
+        echo "export PATH=\$PATH:$cutestpath/bin" >> "$sourceFile"
+        # export PATH=$PATH:$cutestpath/bin
+        echo -e "$green""New PATH added to your source file ($sourceFile)$end"
+    fi
+    if [[ $PATH != *"$cutestpath/bin"*  ]];then
+        echo -e "$yellow""please source your source file ($sourceFile) or launch new terminal to have the begin_tests script in your PATH.$end"
+    fi
+else
+    printf "$yellow""Can't find the source file %s.\nAdd \"export PATH=\$PATH:%s/bin\" to your source file.$end\n" "$sourceFile" "$cutestpath"
+fi
+
+# if the folder tests doesn't exists then create it
+if [ ! -e tests ]; then
+    mkdir tests
+    echo -e "$green""tests folder created$end"
+fi
+#copy needed files for testing
 cp $cutestpath/CuTest.c $cutestpath/CuTest.h ./tests
+echo -e "$green""CuTest.c & CuTest.h copied to tests folder$end"
